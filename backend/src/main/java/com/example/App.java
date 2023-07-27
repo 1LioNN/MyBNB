@@ -9,7 +9,7 @@ public class App {
     static int PORT = 8000;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, SQLException {
-        HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
 
         // TODO: Add server contexts
         server.start();

@@ -1,14 +1,14 @@
-package main.java.com.example;
+package com.example;
 
 import java.sql.*;
 import io.github.cdimascio.dotenv.Dotenv;
 
-public class mysqlDAO {
+public class MysqlDAO {
     //Create a DAO for mySQL database
     public Connection conn;
     public Statement stmt;
 
-    public mysqlDAO () {
+    public MysqlDAO () {
         Dotenv dotenv = Dotenv.load();
         String url = "jdbc:mysql://localhost:3306/" + dotenv.get("DB_NAME");
         
@@ -23,9 +23,9 @@ public class mysqlDAO {
 
     //SQL Queries
     
-    public ResultSet query(String sql) {
+    public ResultSet query() {
         try {
-            return this.stmt.executeQuery(sql);
+            return this.stmt.executeQuery("SELECT * FROM test");
         } catch (Exception e) {
             System.out.println(e);
             return null;

@@ -12,6 +12,8 @@ public class App {
         HttpServer server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         // TODO: Add server contexts
         server.createContext("/user", new User());
+        server.createContext("/user/signin", new SignIn());
+        server.createContext("/user/signup", new SignUp());
 
         server.start();
         System.out.printf("Server started on port %d...\n", PORT);

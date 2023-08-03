@@ -292,4 +292,138 @@ public class MysqlDAO {
         }
     }
 
+    // BOOKING QUERIES
+
+    // REVIEWS QUERIES
+
+    public void createReview(Integer iduser, Integer idlisting, BigDecimal rating, String content) {
+        try {
+            PreparedStatement query = this.conn.prepareStatement(
+                    "INSERT INTO review (iduser, idlistings, content, rating) VALUES (?, ?, ?, ?);");
+            query.setInt(1, iduser);
+            query.setInt(2, idlisting);
+            query.setString(3, content);
+            query.setBigDecimal(4, rating);
+            query.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+
+        }
+
+    }
+
+    public ResultSet getReviewById(Integer id) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn.prepareStatement("SELECT * FROM review WHERE idreview = ?;");
+            query.setInt(1, id);
+            ResultSet rs = query.executeQuery();
+
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReviewByKey(Integer uid, Integer lid) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn
+                    .prepareStatement("SELECT * FROM review WHERE iduser = ? AND idlistings = ?;");
+            query.setInt(1, uid);
+            query.setInt(2, lid);
+            ResultSet rs = query.executeQuery();
+
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public void deleteReview(Integer id) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn.prepareStatement("DELETE FROM review WHERE idreview = ?;");
+            query.setInt(1, id);
+            query.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    // COMMENT QUERIES
+
+    public void createComment(Integer iduser, Integer iduser2, BigDecimal rating, String content) {
+        try {
+            PreparedStatement query = this.conn.prepareStatement(
+                    "INSERT INTO comment (commenter, commentee, content, rating) VALUES (?, ?, ?, ?);");
+            query.setInt(1, iduser);
+            query.setInt(2, iduser2);
+            query.setString(3, content);
+            query.setBigDecimal(4, rating);
+            query.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public ResultSet getCommentById(Integer id) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn.prepareStatement("SELECT * FROM comment WHERE idcomment = ?;");
+            query.setInt(1, id);
+            ResultSet rs = query.executeQuery();
+
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }   
+
+    public ResultSet getCommentByKey(Integer uid, Integer uid2) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn
+                    .prepareStatement("SELECT * FROM comment WHERE commenter = ? AND commentee = ?;");
+            query.setInt(1, uid);
+            query.setInt(2, uid2);
+            ResultSet rs = query.executeQuery();
+
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public void deleteComment(Integer id) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn.prepareStatement("DELETE FROM comment WHERE idcomment = ?;");
+            query.setInt(1, id);
+            query.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    // REPORT QUERIES
 }

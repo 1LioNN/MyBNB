@@ -77,6 +77,7 @@ public abstract class Endpoint implements HttpHandler {
     public boolean validateFields(JSONObject JSONRequest, String[] fields, Class<?>[] fieldClasses) {
         for (int i = 0; i < fields.length; i++) {
             try {
+
                 if (!JSONRequest.has(fields[i]) || !JSONRequest.get(fields[i]).getClass().equals(fieldClasses[i])) {
                     return false;
                 }

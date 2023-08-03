@@ -39,18 +39,10 @@ public class User extends Endpoint {
 
 		// make query and get required data, return 500 if error
 		ResultSet rs;
-		boolean resultHasNext;
-		try {
-			rs = this.dao.getUserById(uid);
-			resultHasNext = rs.next();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			this.sendStatus(r, 500);
-			return;
-		}
 
-		// check if user was found, return 404 if not found
-		if (!resultHasNext) {
+		rs = this.dao.getUserById(uid);
+
+		if (rs == null) {
 			this.sendStatus(r, 404);
 			return;
 		}
@@ -67,10 +59,10 @@ public class User extends Endpoint {
 			name = rs.getString("name");
 			email = rs.getString("email");
 			address = rs.getString("address");
-			birthday = rs.getString("birthday");
+			birthday = rs.getString("dateOfBirth");
 			occupation = rs.getString("occupation");
 			SIN = rs.getInt("SIN");
-			userType = rs.getString("userType");
+			userType = rs.getString("user_type");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			this.sendStatus(r, 500);
@@ -92,4 +84,37 @@ public class User extends Endpoint {
 		this.sendResponse(r, resp, 200);
 	}
 
+	/**
+	 * DELETE /user/:uid
+	 * 
+	 * @param uid
+	 * @return 200, 400, 404, 500
+	 *         Delete user given uid
+	 */
+	@Override
+	public void handleDelete(HttpExchange r) throws IOException, JSONException {
+		String[] splitUrl = r.getRequestURI().getPath().split("/");
+		if (splitUrl.length != 3) {
+			this.sendStatus(r, 400);
+			return;
+		}
+
+		// check if uid given is integer, return 400 if not
+		String uidString = splitUrl[2];
+		int uid;
+		try {
+			uid = Integer.parseInt(uidString);
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.sendStatus(r, 400);
+			return;
+		}
+
+		if (dao.getUserById(uid) == null) {
+			this.sendStatus(r, 404);
+			return;
+		}
+		this.dao.deleteUser(uid);
+		this.sendStatus(r, 200);
+	}
 }

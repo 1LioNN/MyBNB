@@ -52,10 +52,7 @@ public class SignIn extends Endpoint {
             }
 
             Headers respHeaders = r.getResponseHeaders();
-
-            List<String> cookie = new ArrayList<>();
-            cookie.add("iduser" + uid.toString(0));
-            respHeaders.put("Set-Cookie", cookie);
+            respHeaders.add("Set-Cookie", uid +"; Path =/");
 
             this.sendResponse(r, new JSONObject(), 200);
 

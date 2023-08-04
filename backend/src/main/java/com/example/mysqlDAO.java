@@ -190,7 +190,9 @@ public class MysqlDAO {
             query.setBigDecimal(8, price);
             query.setString(9, start);
             query.setString(10, end);
-            query.setObject(11, "{}");
+            // Insert empty json array for unavailable dates
+            query.setString(11, "[]");
+
             query.executeUpdate();
 
             // Find newly created listing id
@@ -292,7 +294,61 @@ public class MysqlDAO {
         }
     }
 
+    public ResultSet getUnavailableDates(Integer id) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn
+                    .prepareStatement("SELECT unavailable_dates FROM listings WHERE idlistings = ?;");
+            query.setInt(1, id);
+            ResultSet rs = query.executeQuery();
+
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public void updateListingUnavail (Integer id, String dates) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn
+                    .prepareStatement("UPDATE listings SET unavailable_dates = ? WHERE idlistings = ?;");
+            query.setString(1, dates);
+            query.setInt(2, id);
+            query.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
     // BOOKING QUERIES
+
+    public void createBooking(Integer uid, Integer idlisting, String start, String end, Integer status) {
+        try {
+            PreparedStatement query = this.conn.prepareStatement(
+                    "INSERT INTO bookings (idlistings, start_date, end_date, status) VALUES (?, ?, ?, ?);");
+            query.setInt(1, idlisting);
+            query.setString(2, start);
+            query.setString(3, end);
+            query.setInt(4, status);
+            query.executeUpdate();
+
+            // Create "books" relationship
+            PreparedStatement query2 = this.conn.prepareStatement(
+                    "INSERT INTO books (iduser) VALUES (?);");
+            query2.setInt(1, uid);
+            query2.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+
+        }
+    }
 
     // REVIEWS QUERIES
 
@@ -393,7 +449,7 @@ public class MysqlDAO {
             System.out.println(e);
             return null;
         }
-    }   
+    }
 
     public ResultSet getCommentByKey(Integer uid, Integer uid2) {
         try {

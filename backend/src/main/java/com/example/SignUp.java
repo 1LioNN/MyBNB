@@ -4,12 +4,12 @@ import com.sun.net.httpserver.HttpExchange;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.sun.net.httpserver.Headers;
-
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class SignUp extends Endpoint {
 
@@ -74,9 +74,9 @@ public class SignUp extends Endpoint {
 
             Headers respHeaders = r.getResponseHeaders();
 
-            List<String> cookie = new ArrayList<>();
-            cookie.add("iduser" + uid.toString());
-            respHeaders.put("Set-Cookie", cookie);
+            respHeaders.add("Set-Cookie", uid +"; Path =/");
+
+            
 
             this.sendResponse(r, new JSONObject(), 200);
 

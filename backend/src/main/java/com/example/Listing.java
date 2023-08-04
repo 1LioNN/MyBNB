@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.List;
 
 public class Listing extends Endpoint {
 
@@ -54,7 +55,9 @@ public class Listing extends Endpoint {
         BigDecimal price_per_day;
         String start_date;
         String end_date;
-        JSONObject unavailable_dates;
+        String unavailable_dates;
+        //Get cookies
+  
 
         try {
             type = rs.getString("type");
@@ -67,7 +70,7 @@ public class Listing extends Endpoint {
             price_per_day = rs.getBigDecimal("price_per_day");
             start_date = rs.getString("start_date");
             end_date = rs.getString("end_date");
-            unavailable_dates = new JSONObject(rs.getString("unavailable_dates"));
+            unavailable_dates = rs.getString("unavailable_dates");
 
             JSONObject resp = new JSONObject();
             JSONObject data = new JSONObject();
@@ -106,16 +109,23 @@ public class Listing extends Endpoint {
     @Override
     public void handlePost(HttpExchange r) throws IOException, JSONException {
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
-        String[] fields = new String[] { "uid", "type", "address", "postal_code", "lat", "long", "city", "country",
+        String[] fields = new String[] { "type", "address", "postal_code", "lat", "long", "city", "country",
                 "price_per_day", "start_date", "end_date" };
-        Class[] fieldClasses = new Class[] { Integer.class, String.class, String.class, String.class, BigDecimal.class,
+        Class[] fieldClasses = new Class[] {String.class, String.class, String.class, BigDecimal.class,
                 BigDecimal.class, String.class, String.class, BigDecimal.class, String.class, String.class };
 
         if (!this.validateFields(body, fields, fieldClasses)) {
             System.out.println("Invalid fields");
             this.sendStatus(r, 400);
-        } else {
-            Integer uid = body.getInt("uid");
+        } else {   
+            //Get cookie and check if user is logged in
+            List<String> cookie = r.getRequestHeaders().get("Cookie");
+            if (cookie == null) {
+                System.out.println("User is not logged in");
+                this.sendStatus(r, 400);
+                return;
+            }
+            Integer uid = Integer.valueOf(cookie.get(0));
             String type = body.getString("type");
             String address = body.getString("address");
             String postal_code = body.getString("postal_code");

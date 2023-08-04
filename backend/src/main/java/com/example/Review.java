@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Review extends Endpoint {
 
@@ -19,14 +20,21 @@ public class Review extends Endpoint {
     public void handlePost(HttpExchange r) throws IOException, JSONException {
         System.out.println("Handling POST request...");
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
-        String[] fields = new String[] { "iduser", "idlisting", "rating", "content" };
-        Class[] fieldClasses = new Class[] { Integer.class, Integer.class, BigDecimal.class, String.class };
+        String[] fields = new String[] {"idlisting", "rating", "content" };
+        Class[] fieldClasses = new Class[] {Integer.class, BigDecimal.class, String.class };
 
         if (!this.validateFields(body, fields, fieldClasses)) {
             System.out.println("Invalid fields");
             this.sendStatus(r, 400);
         } else {
-            Integer iduser = body.getInt("iduser");
+             List<String> cookie = r.getRequestHeaders().get("Cookie");
+            if (cookie == null) {
+                System.out.println("User is not logged in");
+                this.sendStatus(r, 400);
+                return;
+            }
+            
+            Integer iduser = Integer.valueOf(cookie.get(0));
             Integer idlisting = body.getInt("idlisting");
             BigDecimal rating = body.getBigDecimal("rating");
             String comment = body.getString("content");

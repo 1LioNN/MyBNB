@@ -125,7 +125,7 @@ public class Listing extends Endpoint {
                 this.sendStatus(r, 400);
                 return;
             }
-            Integer uid = Integer.valueOf(cookie.get(0));
+            Integer uid = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
             String type = body.getString("type");
             String address = body.getString("address");
             String postal_code = body.getString("postal_code");

@@ -23,10 +23,9 @@ public class Booking extends Endpoint {
      */
     @Override
     public void handlePost(HttpExchange r) throws IOException, JSONException {
-        System.out.println("Handling POST request...");
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
-        String[] fields = new String[] { "idlisting", "start_date", "end_date", "status" };
-        Class[] fieldClasses = new Class[] { Integer.class, String.class, String.class, Integer.class };
+        String[] fields = new String[] { "idlisting", "start_date", "end_date" };
+        Class[] fieldClasses = new Class[] { Integer.class, String.class, String.class };
 
         if (!this.validateFields(body, fields, fieldClasses)) {
             System.out.println("Invalid fields");
@@ -38,8 +37,8 @@ public class Booking extends Endpoint {
                 this.sendStatus(r, 400);
                 return;
             }
-            Integer uid = Integer.valueOf(cookie.get(0));
-            //Check if user is renter
+            Integer uid = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
+            // Check if user is renter
             try {
                 if (this.dao.getUserById(uid).getString("user_type").equals(("host"))) {
                     System.out.println("User is not a renter");
@@ -51,23 +50,17 @@ public class Booking extends Endpoint {
                 this.sendStatus(r, 400);
                 return;
             }
- 
+
             Integer idlisting = body.getInt("idlisting");
             String start_date = body.getString("start_date");
             String end_date = body.getString("end_date");
-            Integer status = body.getInt("status");
 
             if (this.dao.getListingById(idlisting) == null) {
                 System.out.println("Listing does not exist");
                 this.sendStatus(r, 404);
                 return;
             }
-            // Status must be 1 - 5
-            if (status < 1 || status > 5) {
-                System.out.println("Invalid Status Code");
-                this.sendStatus(r, 400);
-                return;
-            }
+
             ResultSet booked_listing = this.dao.getListingById(idlisting);
             try {
                 LocalDate start = LocalDate.parse(start_date);
@@ -102,7 +95,7 @@ public class Booking extends Endpoint {
                         .replace(" ", "")
                         .split(",");
 
-                List <String> unavailable_dates_list = new ArrayList<String>();
+                List<String> unavailable_dates_list = new ArrayList<String>();
                 for (String date : unavailable_dates) {
                     unavailable_dates_list.add(date);
                 }
@@ -111,9 +104,9 @@ public class Booking extends Endpoint {
                 List<String> new_unavailable_dates = dates.stream().map(date -> "\"" + date.format(formatter) + "\"")
                         .collect(Collectors.toList());
 
-                //Append new unavailable dates to the existing unavailable dates
+                // Append new unavailable dates to the existing unavailable dates
 
-                // if unavail list is not empty add it 
+                // if unavail list is not empty add it
                 if (!(unavailable_dates_list.size() == 1)) {
                     new_unavailable_dates.addAll(unavailable_dates_list);
                 }
@@ -121,7 +114,7 @@ public class Booking extends Endpoint {
                 System.out.println(new_unavailable_date_json);
 
                 // Create booking
-                this.dao.createBooking(uid, idlisting, start_date, end_date, status);
+                this.dao.createBooking(uid, idlisting, start_date, end_date, 1);
                 // Update listing unavailable dates
                 this.dao.updateListingUnavail(idlisting, new_unavailable_date_json);
                 this.sendStatus(r, 200);
@@ -139,4 +132,57 @@ public class Booking extends Endpoint {
             }
         }
     }
+
+    /*
+     * PATCH /booking/:bid
+     * 
+     * @body status
+     * 
+     * @return 200, 400, 404, 500
+     */
+    @Override
+    public void handlePatch(HttpExchange r) throws IOException, JSONException {
+
+        String[] splitUrl = r.getRequestURI().getPath().split("/");
+        if (splitUrl.length != 3) {
+            this.sendStatus(r, 400);
+            return;
+        }
+        // check if uid given is integer, return 400 if not
+        String bidString = splitUrl[2];
+        JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
+        String[] fields = new String[] { "status" };
+        Class[] fieldClasses = new Class[] { Integer.class };
+
+        if (!this.validateFields(body, fields, fieldClasses)) {
+            System.out.println("Invalid fields");
+            this.sendStatus(r, 400);
+        } else {
+            List<String> cookie = r.getRequestHeaders().get("Cookie");
+            if (cookie == null) {
+                System.out.println("User is not logged in");
+                this.sendStatus(r, 400);
+                return;
+            }
+
+            Integer status = body.getInt("status");
+            Integer bid = Integer.valueOf(bidString);
+            ResultSet booking = this.dao.getBookingById(bid);
+            if (booking == null) {
+                System.out.println("Booking does not exist");
+                this.sendStatus(r, 404);
+                return;
+            }
+            // Status must be 1 - 5
+            if (status < 1 || status > 4) {
+                System.out.println("Invalid Status Code");
+                this.sendStatus(r, 400);
+                return;
+            }
+            this.dao.updateBookingStatus(bid, status);
+            this.sendStatus(r, 200);
+        }
+
+    };
+
 }

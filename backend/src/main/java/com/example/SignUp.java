@@ -74,7 +74,7 @@ public class SignUp extends Endpoint {
 
             Headers respHeaders = r.getResponseHeaders();
 
-            respHeaders.add("Set-Cookie", uid +"; Path =/");
+            respHeaders.add("Set-Cookie", "session_id" + uid +"; Path =/");
 
             
 

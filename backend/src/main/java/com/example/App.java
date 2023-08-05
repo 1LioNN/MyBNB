@@ -14,10 +14,14 @@ public class App {
         server.createContext("/user", new User());
         server.createContext("/user/signin", new SignIn());
         server.createContext("/user/signup", new SignUp());
+        server.createContext("/user/signout", new Signout());
         server.createContext("/user/listing", new UserListings());
+        server.createContext("/user/comment", new UserComments());
+        server.createContext("/user/bookings", new UserBookings());
 
         //Listing context
         server.createContext("/listing", new Listing());
+        server.createContext("/listing/review", new ListingReviews());
         //Booking context
         server.createContext("/booking", new Booking());
         //Review context

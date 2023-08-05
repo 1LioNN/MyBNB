@@ -8,8 +8,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class SignIn extends Endpoint {
     /**
@@ -52,7 +51,7 @@ public class SignIn extends Endpoint {
             }
 
             Headers respHeaders = r.getResponseHeaders();
-            respHeaders.add("Set-Cookie", uid +"; Path =/");
+            respHeaders.add("Set-Cookie", "session_id=" + uid +"; Path =/");
 
             this.sendResponse(r, new JSONObject(), 200);
 

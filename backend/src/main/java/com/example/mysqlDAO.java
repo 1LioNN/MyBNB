@@ -2,6 +2,9 @@ package com.example;
 
 import java.math.BigDecimal;
 import java.sql.*;
+
+import com.sun.net.httpserver.Authenticator.Result;
+
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class MysqlDAO {
@@ -164,7 +167,7 @@ public class MysqlDAO {
                     "SELECT * FROM mybnb.listings WHERE mybnb.listings.idlistings IN (SELECT idlistings FROM mybnb.hosts WHERE mybnb.hosts.iduser = ? );");
             query.setInt(1, id);
             ResultSet rs = query.executeQuery();
-            if (rs.next()) {
+            if (rs != null) {
                 return rs;
             }
             return null;
@@ -203,9 +206,6 @@ public class MysqlDAO {
             query2.setBigDecimal(3, longi);
             ResultSet rs = query2.executeQuery();
             rs.next();
-
-            System.out.println(rs.getInt("idlistings"));
-            System.out.println(id);
 
             // Check if host listing pair already exists
             PreparedStatement query4 = this.conn.prepareStatement(
@@ -312,7 +312,7 @@ public class MysqlDAO {
         }
     }
 
-    public void updateListingUnavail (Integer id, String dates) {
+    public void updateListingUnavail(Integer id, String dates) {
         try {
             // Get user information
             PreparedStatement query = this.conn
@@ -347,6 +347,55 @@ public class MysqlDAO {
         } catch (Exception e) {
             System.out.println(e);
 
+        }
+    }
+
+    public ResultSet getBookingById(Integer id) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn.prepareStatement("SELECT * FROM bookings WHERE idbookings = ?;");
+            query.setInt(1, id);
+            ResultSet rs = query.executeQuery();
+
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public void updateBookingStatus(Integer id, Integer status) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn
+                    .prepareStatement("UPDATE bookings SET status = ? WHERE idbookings = ?;");
+            query.setInt(1, status);
+            query.setInt(2, id);
+            query.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public ResultSet getUserBookings(Integer id) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn.prepareStatement(
+                    "SELECT * FROM mybnb.bookings WHERE mybnb.bookings.idbookings IN (SELECT idbookings FROM mybnb.books WHERE mybnb.books.iduser = ?)");
+            query.setInt(1, id);
+            ResultSet rs = query.executeQuery();
+
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
     }
 
@@ -417,6 +466,24 @@ public class MysqlDAO {
         }
     }
 
+    public ResultSet getListingReviews(Integer lid) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn
+                    .prepareStatement("SELECT * FROM review WHERE idlistings = ?;");
+            query.setInt(1, lid);
+            ResultSet rs = query.executeQuery();
+
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
     // COMMENT QUERIES
 
     public void createComment(Integer iduser, Integer iduser2, BigDecimal rating, String content) {
@@ -481,5 +548,22 @@ public class MysqlDAO {
         }
     }
 
+    public ResultSet getUserComments(Integer uid) {
+        try {
+            // Get user information
+            PreparedStatement query = this.conn
+                    .prepareStatement("SELECT * FROM mybnb.comment WHERE mybnb.comment.commentee = ?;");
+            query.setInt(1, uid);
+            ResultSet rs = query.executeQuery();
+
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
     // REPORT QUERIES
 }

@@ -33,8 +33,8 @@ public class Review extends Endpoint {
                 this.sendStatus(r, 400);
                 return;
             }
-            
-            Integer iduser = Integer.valueOf(cookie.get(0));
+
+            Integer iduser = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
             Integer idlisting = body.getInt("idlisting");
             BigDecimal rating = body.getBigDecimal("rating");
             String comment = body.getString("content");

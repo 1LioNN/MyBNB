@@ -18,11 +18,7 @@ public class User extends Endpoint {
 
 	@Override
 	public void handleGet(HttpExchange r) throws IOException, JSONException {
-		//Print cookies
-		System.out.println(r.getRequestHeaders().get("Cookie"));
-		//Print only the first cookie
-		System.out.println(r.getRequestHeaders().get("Cookie").get(0));
-		
+
 		// check if request url isn't malformed
 		String[] splitUrl = r.getRequestURI().getPath().split("/");
 		if (splitUrl.length != 3) {

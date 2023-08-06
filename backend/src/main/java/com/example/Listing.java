@@ -1,6 +1,8 @@
 package com.example;
 
 import com.sun.net.httpserver.HttpExchange;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class Listing extends Endpoint {
      */
     @Override
     public void handleGet(HttpExchange r) throws IOException, JSONException {
+        System.out.println("Listing");
         String[] splitUrl = r.getRequestURI().getPath().split("/");
         if (splitUrl.length != 3) {
             this.sendStatus(r, 400);
@@ -101,7 +104,7 @@ public class Listing extends Endpoint {
      * POST /listing
      * 
      * @body uid, type, address, lat, long, ,postal code, city, country,
-     *       price_per_day, start_date, end_date
+     *       price_per_day, start_date, end_date, amenities
      * @return 200, 400, 404, 500
      *         Create listing with the given information
      */
@@ -110,9 +113,10 @@ public class Listing extends Endpoint {
     public void handlePost(HttpExchange r) throws IOException, JSONException {
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
         String[] fields = new String[] { "type", "address", "postal_code", "lat", "long", "city", "country",
-                "price_per_day", "start_date", "end_date" };
+                "price_per_day", "start_date", "end_date", "amenities" };
         Class[] fieldClasses = new Class[] { String.class, String.class, String.class, BigDecimal.class,
-                BigDecimal.class, String.class, String.class, BigDecimal.class, String.class, String.class };
+                BigDecimal.class, String.class, String.class, BigDecimal.class, String.class, String.class,
+                JSONArray.class };
 
         if (!this.validateFields(body, fields, fieldClasses)) {
             System.out.println("Invalid fields");
@@ -136,6 +140,7 @@ public class Listing extends Endpoint {
             BigDecimal price_per_day = body.getBigDecimal("price_per_day");
             String start_date = body.getString("start_date");
             String end_date = body.getString("end_date");
+            JSONArray amenities = body.getJSONArray("amenities");
 
             // Check if user exists and if user is a host
             try {
@@ -166,6 +171,25 @@ public class Listing extends Endpoint {
             // Insert into listing table
             this.dao.createListing(uid, type, address, postal_code, lat, longi, city, country, price_per_day,
                     start_date, end_date);
+
+            // Get lid of listing
+            ResultSet listing = this.dao.getListingByAddress(address);
+            try{
+                Integer lid = listing.getInt("idlistings");
+                // Insert into amenities table
+                for (int i = 0; i < amenities.length(); i++) {
+                    Integer amenity = amenities.getInt(i);
+                    this.dao.createAmenity(lid, amenity);
+                }
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+                this.sendStatus(r, 500);
+                return;
+            }
+            
+
+
             this.sendResponse(r, new JSONObject(), 200);
         }
     }
@@ -280,7 +304,7 @@ public class Listing extends Endpoint {
                 this.sendStatus(r, 400);
                 return;
             }
-            
+
         } catch (SQLException e) {
             e.printStackTrace();
             this.sendStatus(r, 500);

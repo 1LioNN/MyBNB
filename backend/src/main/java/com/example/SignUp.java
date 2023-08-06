@@ -15,7 +15,7 @@ public class SignUp extends Endpoint {
 
     /**
      * POST /user/signup
-     * @body name, email, password
+     * @body name, username, password
      * @return 200, 400, 500
      * Register a user into the system using the given information.
      */
@@ -23,7 +23,7 @@ public class SignUp extends Endpoint {
     @Override
     public void handlePost(HttpExchange r) throws IOException, JSONException {
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
-        String[] fields = new String[]{"name", "email", "password", "address", "birthday","occupation","SIN"};
+        String[] fields = new String[]{"name", "username", "password", "address", "birthday","occupation","SIN"};
         Class[] fieldClasses = new Class[]{String.class, String.class, String.class, String.class, String.class, String.class, Integer.class};
         ResultSet rs;
         Integer uid;
@@ -33,7 +33,7 @@ public class SignUp extends Endpoint {
             this.sendStatus(r, 400);
         } else {
             String name = body.getString("name");
-            String email = body.getString("email");
+            String username = body.getString("username");
             String password = body.getString("password");
             String address = body.getString("address");
             String birthday = body.getString("birthday");
@@ -51,16 +51,16 @@ public class SignUp extends Endpoint {
             } catch (JSONException e) {
                 creditPass = null;
             }
-           if ((this.dao.getUserbyEmail(email) != null) || (this.dao.getUserbySIN(SIN) != null)){
+           if ((this.dao.getUserbyEmail(username) != null) || (this.dao.getUserbySIN(SIN) != null)){
                 System.out.println("User already exists");
                 this.sendStatus(r, 400);
                 return;
             }
             if (creditcard != null && creditPass != null){
-                rs = this.dao.signupRenter(email, password, name, address, birthday, occupation, SIN, creditcard, creditPass);
+                rs = this.dao.signupRenter(username, password, name, address, birthday, occupation, SIN, creditcard, creditPass);
                 System.out.println("Renter created");
             }else{
-                rs = this.dao.signupHost(email, password, name, address, birthday, occupation, SIN);
+                rs = this.dao.signupHost(username, password, name, address, birthday, occupation, SIN);
                 System.out.println("Host created");
             }   
 

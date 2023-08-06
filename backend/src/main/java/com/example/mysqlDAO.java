@@ -3,6 +3,8 @@ package com.example;
 import java.math.BigDecimal;
 import java.sql.*;
 
+import org.json.JSONArray;
+
 import com.sun.net.httpserver.Authenticator.Result;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -28,12 +30,12 @@ public class MysqlDAO {
     // SQL Queries
 
     // USER QUERIES
-    public ResultSet signupRenter(String email, String password, String name, String address, String birthday,
+    public ResultSet signupRenter(String username, String password, String name, String address, String birthday,
             String occupation, Integer SIN, String creditcard, String creditPass) {
         try {
             PreparedStatement query = this.conn.prepareStatement(
-                    "INSERT INTO user (email, password, name, address, dateOfBirth, occupation, SIN, user_type, credit_number, credit_password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-            query.setString(1, email);
+                    "INSERT INTO user (username, password, name, address, dateOfBirth, occupation, SIN, user_type, credit_number, credit_password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+            query.setString(1, username);
             query.setString(2, password);
             query.setString(3, name);
             query.setString(4, address);
@@ -44,7 +46,7 @@ public class MysqlDAO {
             query.setString(9, creditcard);
             query.setString(10, creditPass);
             query.executeUpdate();
-            return signinUser(email, password);
+            return signinUser(username, password);
 
         } catch (Exception e) {
             System.out.println(e);
@@ -52,12 +54,12 @@ public class MysqlDAO {
         }
     }
 
-    public ResultSet signupHost(String email, String password, String name, String address, String birthday,
+    public ResultSet signupHost(String username, String password, String name, String address, String birthday,
             String occupation, Integer SIN) {
         try {
             PreparedStatement query = this.conn.prepareStatement(
-                    "INSERT INTO user (email, password, name, address, dateOfBirth, occupation, SIN, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
-            query.setString(1, email);
+                    "INSERT INTO user (username, password, name, address, dateOfBirth, occupation, SIN, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+            query.setString(1, username);
             query.setString(2, password);
             query.setString(3, name);
             query.setString(4, address);
@@ -66,7 +68,7 @@ public class MysqlDAO {
             query.setInt(7, SIN);
             query.setString(8, "host");
             query.executeUpdate();
-            return signinUser(email, password);
+            return signinUser(username, password);
 
         } catch (Exception e) {
             System.out.println(e);
@@ -74,12 +76,12 @@ public class MysqlDAO {
         }
     }
 
-    public ResultSet signinUser(String email, String password) {
+    public ResultSet signinUser(String username, String password) {
         try {
-            // Check if email and password match
+            // Check if username and password match
             PreparedStatement query = this.conn
-                    .prepareStatement("SELECT * FROM user WHERE email = ? AND password = ?;");
-            query.setString(1, email);
+                    .prepareStatement("SELECT * FROM user WHERE username = ? AND password = ?;");
+            query.setString(1, username);
             query.setString(2, password);
             ResultSet rs = query.executeQuery();
 
@@ -110,12 +112,12 @@ public class MysqlDAO {
         }
     }
 
-    // Get User by email
-    public ResultSet getUserbyEmail(String email) {
+    // Get User by username
+    public ResultSet getUserbyEmail(String username) {
         try {
             // Get user information
-            PreparedStatement query = this.conn.prepareStatement("SELECT * FROM user WHERE email = ?;");
-            query.setString(1, email);
+            PreparedStatement query = this.conn.prepareStatement("SELECT * FROM user WHERE username = ?;");
+            query.setString(1, username);
             ResultSet rs = query.executeQuery();
 
             if (rs.next()) {
@@ -326,10 +328,10 @@ public class MysqlDAO {
         }
     }
 
-    public void updateListing(Integer id, BigDecimal price_per_day, String start_date, String end_date){
+    public void updateListing(Integer id, BigDecimal price_per_day, String start_date, String end_date) {
         String query;
         // if a field is not null, update it
-        if (price_per_day != null){
+        if (price_per_day != null) {
             query = "UPDATE listings SET price_per_day = ? WHERE idlistings = ?;";
             try {
                 PreparedStatement stmt = this.conn.prepareStatement(query);
@@ -340,7 +342,7 @@ public class MysqlDAO {
                 System.out.println(e);
             }
         }
-        if (start_date != null){
+        if (start_date != null) {
             query = "UPDATE listings SET start_date = ? WHERE idlistings = ?;";
             try {
                 PreparedStatement stmt = this.conn.prepareStatement(query);
@@ -351,7 +353,7 @@ public class MysqlDAO {
                 System.out.println(e);
             }
         }
-        if (end_date != null){
+        if (end_date != null) {
             query = "UPDATE listings SET end_date = ? WHERE idlistings = ?;";
             try {
                 PreparedStatement stmt = this.conn.prepareStatement(query);
@@ -366,24 +368,40 @@ public class MysqlDAO {
 
     // BOOKING QUERIES
 
-    public void createBooking(Integer uid, Integer idlisting, String start, String end, Integer status) {
+    public void createBooking(Integer uid, Integer idlisting, String start, String end, Integer status,
+            BigDecimal price) {
         try {
             PreparedStatement query = this.conn.prepareStatement(
-                    "INSERT INTO bookings (idlistings, start_date, end_date, status) VALUES (?, ?, ?, ?);");
+                    "INSERT INTO bookings (idlistings, start_date, end_date, status, total_cost) VALUES (?, ?, ?, ?, ?);");
             query.setInt(1, idlisting);
             query.setString(2, start);
             query.setString(3, end);
             query.setInt(4, status);
+            query.setBigDecimal(5, price);
             query.executeUpdate();
+
+            // Find newly created booking id
+            PreparedStatement query1 = this.conn.prepareStatement(
+                    "SELECT idbookings FROM bookings WHERE idlistings = ? AND start_date = ? AND end_date = ? AND status = ? AND total_cost = ?;");
+            query1.setInt(1, idlisting);
+            query1.setString(2, start);
+            query1.setString(3, end);
+            query1.setInt(4, status);
+            query1.setBigDecimal(5, price);
+            ResultSet rs = query1.executeQuery();
+            rs.next();
+            Integer bid = rs.getInt("idbookings");
 
             // Create "books" relationship
             PreparedStatement query2 = this.conn.prepareStatement(
-                    "INSERT INTO books (iduser) VALUES (?);");
+                    "INSERT INTO books (iduser, idbookings) VALUES (?, ?);");
             query2.setInt(1, uid);
+            query2.setInt(2, bid);
+
             query2.executeUpdate();
 
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
 
         }
     }
@@ -603,5 +621,441 @@ public class MysqlDAO {
             return null;
         }
     }
+
+    public ResultSet filterListings(BigDecimal latitude, BigDecimal longitude, BigDecimal distance,
+            String startDate, String endDate, String address,
+            String postalCode, BigDecimal minPrice, BigDecimal maxPrice,
+            String orderByPrice, JSONArray amenities) throws SQLException {
+
+        StringBuilder query = new StringBuilder("SELECT * FROM listings WHERE 1=1 ");
+
+        if (latitude != null && longitude != null && distance != null) {
+            query.append(
+                    " AND (6371 * acos(cos(radians(lat)) * cos(radians(?)) * cos(radians(? - longi)) + sin(radians(lat)) * sin(radians(?))) <= ?)");
+        }
+
+        if (startDate != null) {
+            query.append(" AND start_date >= ?");
+        }
+
+        if (endDate != null) {
+            query.append(" AND end_date <= ?");
+        }
+
+        if (address != null) {
+            query.append(" AND address = ?");
+        }
+
+        if (postalCode != null) {
+            query.append(" AND postal_code LIKE CONCAT(SUBSTRING(?, 1, 5), '%')");
+        }
+
+        if (minPrice != null) {
+            query.append(" AND price >= ?");
+        }
+
+        if (maxPrice != null) {
+            query.append(" AND price <= ?");
+        }
+
+        if (amenities != null) {
+            for (int i = 0; i < amenities.length(); i++) {
+                query.append(
+                        "AND ? IN (SELECT name FROM mybnb.amenities WHERE mybnb.amenities.idamenities IN (SELECT idamenities FROM mybnb.has WHERE mybnb.has.idlistings = mybnb.listings.idlistings) )");
+            }
+        }
+
+        if (orderByPrice != null && (orderByPrice.equalsIgnoreCase("asc") || orderByPrice.equalsIgnoreCase("desc"))) {
+            query.append(" ORDER BY price ").append(orderByPrice.toUpperCase());
+        }
+
+        PreparedStatement stmt = this.conn.prepareStatement(query.toString());
+    
+        int parameterIndex = 1;
+        if (latitude != null && longitude != null && distance != null) {
+            stmt.setBigDecimal(parameterIndex++, latitude);
+            stmt.setBigDecimal(parameterIndex++, longitude);
+            stmt.setBigDecimal(parameterIndex++, longitude);
+            stmt.setBigDecimal(parameterIndex++, distance);
+        }
+
+        if (startDate != null) {
+            stmt.setString(parameterIndex++, startDate);
+        }
+
+        if (endDate != null) {
+            stmt.setString(parameterIndex++, endDate);
+        }
+
+        if (address != null) {
+            stmt.setString(parameterIndex++, address);
+        }
+
+        if (postalCode != null) {
+            stmt.setString(parameterIndex++, postalCode);
+        }
+
+        if (minPrice != null) {
+            stmt.setBigDecimal(parameterIndex++, minPrice);
+        }
+
+        if (maxPrice != null) {
+            stmt.setBigDecimal(parameterIndex++, maxPrice);
+        }
+        if (amenities != null) {
+            for (int i = 0; i < amenities.length(); i++) {
+                stmt.setInt(parameterIndex++, amenities.getInt(i));
+            }
+        }
+        System.out.println(stmt.toString());
+        return stmt.executeQuery();
+    }
     // REPORT QUERIES
+
+    public ResultSet getReport1(String start_date, String end_date, String city) {
+
+        String query = "SELECT COUNT(idbookings) AS Total FROM mybnb.bookings WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ? AND mybnb.bookings.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.city = ?);";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, end_date);
+            stmt.setString(2, start_date);
+            stmt.setString(3, city);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReport2(String start_date, String end_date, String postal_code) {
+
+        String query = "SELECT COUNT(idbookings) AS Total FROM mybnb.bookings WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ? AND mybnb.bookings.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.postal_code = ?;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, end_date);
+            stmt.setString(2, start_date);
+            stmt.setString(3, postal_code);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReport3(String country) {
+        String query = "SELECT COUNT(idlistings) AS Total FROM mybnb.listings WHERE mybnb.listings.country = ?;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, country);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    public ResultSet getReport4(String country, String city) {
+        String query = "SELECT COUNT(idlistings) AS Total FROM mybnb.listings WHERE mybnb.listings.country = ? AND mybnb.listings.city = ?;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, country);
+            stmt.setString(2, city);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReport5(String country, String city, String postal_code) {
+        String query = "SELECT COUNT(idlistings) AS Total FROM mybnb.listings WHERE mybnb.listings.country = ? AND mybnb.listings.city = ? AND mybnb.listings.postal_code = ?;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, country);
+            stmt.setString(2, city);
+            stmt.setString(3, postal_code);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    public ResultSet getReport6(String country) {
+        String query = "SELECT iduser,count(*) AS Total FROM mybnb.hosts WHERE mybnb.hosts.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.country = ?) GROUP BY iduser";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, country);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReport7(String city) {
+        String query = "SELECT iduser,count(*) AS Total FROM mybnb.hosts WHERE mybnb.hosts.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.city = ?) GROUP BY iduser";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, city);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReport8(String country) {
+        String query = "SELECT * FROM (" +
+                "  SELECT " +
+                "    iduser, " +
+                "    COUNT(*) / (SELECT COUNT(idlistings) AS Total FROM mybnb.hosts WHERE mybnb.hosts.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.country = ?)) * 100 AS Percentage "
+                +
+                "  FROM " +
+                "    mybnb.hosts " +
+                "  WHERE " +
+                "    mybnb.hosts.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.country = ?) "
+                +
+                "  GROUP BY " +
+                "    iduser " +
+                ") AS host_percentage " +
+                "WHERE " +
+                "  Percentage > 10.0;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, country);
+            stmt.setString(2, country);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReport9(String city) {
+        String query = "SELECT * FROM (" +
+                "  SELECT " +
+                "    iduser, " +
+                "    COUNT(*) / (SELECT COUNT(idlistings) AS Total FROM mybnb.hosts WHERE mybnb.hosts.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.city = ?)) * 100 AS Percentage "
+                +
+                "  FROM " +
+                "    mybnb.hosts " +
+                "  WHERE " +
+                "    mybnb.hosts.idlistings IN (SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.city = ?) "
+                +
+                "  GROUP BY " +
+                "    iduser " +
+                ") AS host_percentage " +
+                "WHERE " +
+                "  Percentage > 10.0;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, city);
+            stmt.setString(2, city);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getReport10(String start_date, String end_date) {
+        String query = "SELECT iduser, COUNT(*) AS Total " +
+                "FROM mybnb.books " +
+                "WHERE mybnb.books.idbookings IN (" +
+                "    SELECT idbookings FROM mybnb.bookings " +
+                "    WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ?" +
+                ") " +
+                "GROUP BY iduser;";
+
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, end_date);
+            stmt.setString(2, start_date);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    public ResultSet getReport11(String start_date, String end_date, String city) {
+        String query = "SELECT * FROM " +
+                "(SELECT iduser, COUNT(*) AS Total " +
+                "FROM mybnb.books " +
+                "WHERE mybnb.books.idbookings IN (" +
+                "    SELECT idbookings FROM mybnb.bookings " +
+                "    WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ? " +
+                "    AND mybnb.bookings.idlistings IN (" +
+                "        SELECT idlistings FROM mybnb.listings WHERE mybnb.listings.city = ?" +
+                "    )" +
+                ") " +
+                "GROUP BY iduser) AS renter_rank " +
+                "WHERE Total > 1;";
+
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, end_date);
+            stmt.setString(2, start_date);
+            stmt.setString(3, city);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    public ResultSet getReport12and13(String user_type, String year) {
+        String query = "";
+        if (user_type.equals("host")) {
+            query = "SELECT * FROM mybnb.user WHERE mybnb.user.iduser IN " +
+                    "(SELECT iduser FROM mybnb.hosts WHERE mybnb.hosts.idlistings = " +
+                    "(SELECT idlistings FROM " +
+                    "(SELECT idlistings, COUNT(*) AS Total " +
+                    "FROM mybnb.bookings " +
+                    "WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ? AND mybnb.bookings.status = 3 "
+                    +
+                    "GROUP BY idlistings) AS host_cancel WHERE Total = " +
+                    "(SELECT MAX(Total) AS Amount FROM " +
+                    "(SELECT idlistings, COUNT(*) AS Total " +
+                    "FROM mybnb.bookings " +
+                    "WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ? AND mybnb.bookings.status = 3 "
+                    +
+                    "GROUP BY idlistings) AS max_cancel)))";
+        } else if (user_type.equals("renter")) {
+            query = "SELECT * FROM mybnb.user WHERE mybnb.user.iduser IN " +
+                    "(SELECT iduser FROM " +
+                    "(SELECT iduser, COUNT(*) AS Total " +
+                    "FROM mybnb.books " +
+                    "WHERE mybnb.books.idbookings IN " +
+                    "(SELECT idbookings FROM mybnb.bookings WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ? AND mybnb.bookings.status = 2) "
+                    +
+                    "GROUP BY iduser) AS renter_cancel WHERE Total = " +
+                    "(SELECT MAX(Total) AS Amount FROM " +
+                    "(SELECT iduser, COUNT(*) AS Total " +
+                    "FROM mybnb.books " +
+                    "WHERE mybnb.books.idbookings IN " +
+                    "(SELECT idbookings FROM mybnb.bookings WHERE mybnb.bookings.end_date <= ? AND mybnb.bookings.start_date >= ? AND mybnb.bookings.status = 2) "
+                    +
+                    "GROUP BY iduser) AS max_cancel))";
+
+        } else {
+            return null;
+        }
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, year + "-12-31");
+            stmt.setString(2, year + "-01-01");
+            stmt.setString(3, year + "-12-31");
+            stmt.setString(4, year + "-01-01");
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    public ResultSet getReport14() {
+        String query = "SELECT idlistings, content FROM mybnb.review order by idlistings;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public ResultSet getAmenityById(Integer id) {
+        String query = "SELECT * FROM mybnb.amenities WHERE idamenities = ?;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public void createAmenity(Integer id, Integer amenityid) {
+        String query = "INSERT INTO mybnb.has (idlistings, idamenities) VALUES (?, ?);";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setInt(1, id);
+            stmt.setInt(2, amenityid);
+            stmt.executeUpdate();
+
+            // Increment the number of amenities in amenities table
+            String query2 = "UPDATE mybnb.amenities SET amount = amount + 1 WHERE idamenities = ?;";
+            stmt = this.conn.prepareStatement(query2);
+            stmt.setInt(1, amenityid);
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
 }

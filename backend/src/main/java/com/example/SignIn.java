@@ -14,7 +14,7 @@ public class SignIn extends Endpoint {
     /**
      * POST /user/signin
      * 
-     * @body email, password
+     * @body username, password
      * @return 200, 400, 401, 404, 500
      *         Login a user into the system if the given information matches the
      *         information of the user in the database.
@@ -23,7 +23,7 @@ public class SignIn extends Endpoint {
     @Override
     public void handlePost(HttpExchange r) throws IOException, JSONException {
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
-        String[] fields = new String[] { "email", "password" };
+        String[] fields = new String[] { "username", "password" };
         Class[] fieldClasses = new Class[] { String.class, String.class };
 
         if (!this.validateFields(body, fields, fieldClasses)) {
@@ -33,9 +33,9 @@ public class SignIn extends Endpoint {
             ResultSet rs;
             Integer uid;
 
-            String email = body.getString("email");
+            String username = body.getString("username");
             String password = body.getString("password"); // need to hash later
-            rs = this.dao.signinUser(email, password);
+            rs = this.dao.signinUser(username, password);
 
             if (rs == null) {
                 this.sendStatus(r, 404);

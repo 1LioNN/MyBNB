@@ -22,6 +22,7 @@ public class App {
         //Listing context
         server.createContext("/listing", new Listing());
         server.createContext("/listing/review", new ListingReviews());
+        server.createContext("/listing/filter", new Filter());
         //Booking context
         server.createContext("/booking", new Booking());
         //Review context
@@ -29,6 +30,7 @@ public class App {
         //Comment context
         server.createContext("/comment", new Comment());
         //Report context
+        server.createContext("/report", new Report());
         
 
         server.start();

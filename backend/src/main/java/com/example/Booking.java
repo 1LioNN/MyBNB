@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -111,10 +112,12 @@ public class Booking extends Endpoint {
                     new_unavailable_dates.addAll(unavailable_dates_list);
                 }
                 String new_unavailable_date_json = "[" + String.join(", ", new_unavailable_dates) + "]";
-                System.out.println(new_unavailable_date_json);
+
+                BigDecimal price_per_day = booked_listing.getBigDecimal("price_per_day");
+                BigDecimal total_cost = price_per_day.multiply(new BigDecimal(dates.size()));
 
                 // Create booking
-                this.dao.createBooking(uid, idlisting, start_date, end_date, 1);
+                this.dao.createBooking(uid, idlisting, start_date, end_date, 1, total_cost);
                 // Update listing unavailable dates
                 this.dao.updateListingUnavail(idlisting, new_unavailable_date_json);
                 this.sendStatus(r, 200);

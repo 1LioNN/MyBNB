@@ -661,7 +661,7 @@ public class MysqlDAO {
         if (amenities != null) {
             for (int i = 0; i < amenities.length(); i++) {
                 query.append(
-                        "AND ? IN (SELECT name FROM mybnb.amenities WHERE mybnb.amenities.idamenities IN (SELECT idamenities FROM mybnb.has WHERE mybnb.has.idlistings = mybnb.listings.idlistings) )");
+                        "AND ? IN (SELECT idamenities FROM mybnb.amenities WHERE mybnb.amenities.idamenities IN (SELECT idamenities FROM mybnb.has WHERE mybnb.has.idlistings = mybnb.listings.idlistings) )");
             }
         }
 

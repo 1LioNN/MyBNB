@@ -326,6 +326,44 @@ public class MysqlDAO {
         }
     }
 
+    public void updateListing(Integer id, BigDecimal price_per_day, String start_date, String end_date){
+        String query;
+        // if a field is not null, update it
+        if (price_per_day != null){
+            query = "UPDATE listings SET price_per_day = ? WHERE idlistings = ?;";
+            try {
+                PreparedStatement stmt = this.conn.prepareStatement(query);
+                stmt.setBigDecimal(1, price_per_day);
+                stmt.setInt(2, id);
+                stmt.executeUpdate();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+        if (start_date != null){
+            query = "UPDATE listings SET start_date = ? WHERE idlistings = ?;";
+            try {
+                PreparedStatement stmt = this.conn.prepareStatement(query);
+                stmt.setString(1, start_date);
+                stmt.setInt(2, id);
+                stmt.executeUpdate();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+        if (end_date != null){
+            query = "UPDATE listings SET end_date = ? WHERE idlistings = ?;";
+            try {
+                PreparedStatement stmt = this.conn.prepareStatement(query);
+                stmt.setString(1, end_date);
+                stmt.setInt(2, id);
+                stmt.executeUpdate();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }
+
     // BOOKING QUERIES
 
     public void createBooking(Integer uid, Integer idlisting, String start, String end, Integer status) {

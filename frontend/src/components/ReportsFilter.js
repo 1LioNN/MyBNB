@@ -18,6 +18,8 @@ function ReportsFilter() {
 
   const changeType = (e) => {
     setReportType(e.target.value);
+    //Clear current table
+    setData([]);
     console.log(reportType);
   };
 
@@ -235,7 +237,7 @@ function ReportsFilter() {
           Generate Report
         </button>
       </form>
-      < Report data={data} />
+      < Report data={data} type={reportType} />
     </div>
   );
 }

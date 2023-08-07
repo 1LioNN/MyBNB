@@ -39,7 +39,7 @@ function Profile(props) {
   //Display user information
 
   return (
-    <div className="flex flex-col justify-center ml-20 pt-1 p-24 gap-7 w-2/3 mt-7">
+    <div className="flex flex-col ml-20 pt-1 p-24 gap-7 w-2/3 mt-7">
       <div className="font-bold text-4xl">User Profile </div>
       <div className="text-xl">
         <span className="font-semibold">Name: </span> {profile.name}

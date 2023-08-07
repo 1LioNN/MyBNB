@@ -23,7 +23,7 @@ public class SignUp extends Endpoint {
     @Override
     public void handlePost(HttpExchange r) throws IOException, JSONException {
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
-        String[] fields = new String[]{"name", "username", "password", "address", "birthday","occupation","SIN"};
+        String[] fields = new String[]{"name", "username", "password", "address", "birthday","occupation","sin"};
         Class[] fieldClasses = new Class[]{String.class, String.class, String.class, String.class, String.class, String.class, Integer.class};
         ResultSet rs;
         Integer uid;
@@ -38,7 +38,7 @@ public class SignUp extends Endpoint {
             String address = body.getString("address");
             String birthday = body.getString("birthday");
             String occupation = body.getString("occupation");
-            Integer SIN = body.getInt("SIN");
+            Integer SIN = body.getInt("sin");
             String creditcard = null;
             String creditPass = null;
             try {

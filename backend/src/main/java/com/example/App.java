@@ -18,6 +18,8 @@ public class App {
         server.createContext("/user/listing", new UserListings());
         server.createContext("/user/comment", new UserComments());
         server.createContext("/user/bookings", new UserBookings());
+        server.createContext("/user/me", new UserSession());
+        
 
         //Listing context
         server.createContext("/listing", new Listing());

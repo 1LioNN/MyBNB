@@ -82,7 +82,7 @@ public class Listing extends Endpoint {
             resp.put("address", address);
             resp.put("postal_code", postal_code);
             resp.put("lat", lat);
-            resp.put("long", longi);
+            resp.put("longi", longi);
             resp.put("city", city);
             resp.put("country", country);
             resp.put("price_per_day", price_per_day);
@@ -112,7 +112,7 @@ public class Listing extends Endpoint {
     @Override
     public void handlePost(HttpExchange r) throws IOException, JSONException {
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
-        String[] fields = new String[] { "type", "address", "postal_code", "lat", "long", "city", "country",
+        String[] fields = new String[] { "type", "address", "postal_code", "lat", "longi", "city", "country",
                 "price_per_day", "start_date", "end_date", "amenities" };
         Class[] fieldClasses = new Class[] { String.class, String.class, String.class, BigDecimal.class,
                 BigDecimal.class, String.class, String.class, BigDecimal.class, String.class, String.class,
@@ -148,7 +148,7 @@ public class Listing extends Endpoint {
             String address = body.getString("address");
             String postal_code = body.getString("postal_code");
             BigDecimal lat = body.getBigDecimal("lat");
-            BigDecimal longi = body.getBigDecimal("long");
+            BigDecimal longi = body.getBigDecimal("longi");
             String city = body.getString("city");
             String country = body.getString("country");
             BigDecimal price_per_day = body.getBigDecimal("price_per_day");

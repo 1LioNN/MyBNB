@@ -1,11 +1,14 @@
 import React from "react";
 import NavBar from "../components/NavBar";
+import CreateListingForm from "../components/CreateListingForm";
 
 function CreateListingPage() {
+
+  console.log("CreateListingPage.js");
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col">
       <NavBar />
-      <h1>My Listings</h1>
+      <CreateListingForm />
     </div>
   );
 }

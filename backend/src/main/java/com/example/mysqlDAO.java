@@ -455,6 +455,24 @@ public class MysqlDAO {
         }
     }
 
+    public ResultSet getHostBookings (Integer id){
+        try {
+            // Get user information
+            PreparedStatement query = this.conn.prepareStatement(
+                    "SELECT * FROM mybnb.bookings WHERE idlistings IN (SELECT idlistings FROM mybnb.hosts WHERE iduser = ?)");
+            query.setInt(1, id);
+            ResultSet rs = query.executeQuery();
+
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    }
+
     // REVIEWS QUERIES
 
     public void createReview(Integer iduser, Integer idlisting, BigDecimal rating, String content) {

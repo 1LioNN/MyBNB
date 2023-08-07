@@ -44,7 +44,7 @@ function Comments(props) {
 
     return (
       <div className="flex flex-col w-1/3 mt-7 text-xl  mr-12 gap-5">
-        <div className="font-bold text-4xl">Comments </div>
+        <div className="font-bold text-2xl">Comments </div>
         <div className="min-h-[55%] overflow-auto">
           {comments !== "undefined" &&
             comments.map(
@@ -57,7 +57,7 @@ function Comments(props) {
                     key={comment.idcomment}
                   >
                     <div className="flex flex-row">
-                      <div className="font-semibold">Host</div>
+                      <div className="font-semibold">User{comment.commenter}</div>
                       <div className="font-bold ml-auto mr-2">
                         Rating: {comment.rating}
                       </div>

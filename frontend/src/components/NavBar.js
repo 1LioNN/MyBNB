@@ -76,7 +76,7 @@ function NavBar() {
         </Link>
       )}
 
-      {auth.user !== null && ( 
+      {auth.user !== null && type !== "admin" && ( 
           <Link
             to="/bookings"
             className="hover:cursor-pointer hover:underline text-xl ml-5 font-semibold"

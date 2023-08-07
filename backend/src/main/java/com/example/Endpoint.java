@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -79,7 +80,13 @@ public abstract class Endpoint implements HttpHandler {
         for (int i = 0; i < fields.length; i++) {
             System.out.println(JSONRequest.get(fields[i]).getClass());
             System.out.println(fieldClasses[i]);
+            if (JSONRequest.get(fields[i]).getClass().equals(Integer.class)
+                    && fieldClasses[i].equals(BigDecimal.class)) {
+                continue;
+            }
             try {
+                //If the given field is Integer and the wanted field is BigDecimal, it will ignore it
+
 
                 if (!JSONRequest.has(fields[i]) || !JSONRequest.get(fields[i]).getClass().equals(fieldClasses[i])) {
                     return false;

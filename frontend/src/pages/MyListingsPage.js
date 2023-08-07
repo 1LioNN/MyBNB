@@ -1,11 +1,12 @@
 import React from "react";
 import NavBar from "../components/NavBar";
+import Listings from "../components/Listings";
 
 function MyListingsPage() {
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col">
       <NavBar />
-      <h1>My Listings</h1>
+      <Listings />
     </div>
   );
 }

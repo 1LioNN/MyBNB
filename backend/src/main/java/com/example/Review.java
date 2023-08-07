@@ -21,7 +21,7 @@ public class Review extends Endpoint {
         System.out.println("Handling POST request...");
         JSONObject body = new JSONObject(Utils.convert(r.getRequestBody()));
         String[] fields = new String[] {"idlisting", "rating", "content" };
-        Class[] fieldClasses = new Class[] {Integer.class, BigDecimal.class, String.class };
+        Class[] fieldClasses = new Class[] {Integer.class, Integer.class, String.class };
 
         if (!this.validateFields(body, fields, fieldClasses)) {
             System.out.println("Invalid fields");
@@ -50,7 +50,7 @@ public class Review extends Endpoint {
                 return;
             }
             Integer idlisting = body.getInt("idlisting");
-            BigDecimal rating = body.getBigDecimal("rating");
+            BigDecimal rating = new BigDecimal(body.getInt("rating"));;
             String comment = body.getString("content");
 
             if ((this.dao.getUserById(uid) == null) || (this.dao.getListingById(idlisting) == null)) {

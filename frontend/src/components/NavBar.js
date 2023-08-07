@@ -31,7 +31,7 @@ function NavBar() {
     if (auth.user === null) {
       navigate("/");
     } else {
-      navigate("/profile");
+      navigate("/profile" + "/" + auth.user);
     }
   };
 
@@ -40,7 +40,6 @@ function NavBar() {
       navigate("/");
     });
   };
-  
 
   return (
     <div className="flex flex-row  h-24 w-fullfont-semibold items-center  pb-1 bg-cyan-600 text-white pl-5 gap-12 ">
@@ -51,12 +50,47 @@ function NavBar() {
         MyBNB
       </div>
 
-      {auth.user !== null && (type !== "host") && (
+      {auth.user !== null && (
+        <Link
+          to={"/profile/" + auth.user}
+          className="hover:cursor-pointer hover:underline text-xl  font-semibold ml-5"
+        >
+          Profile
+        </Link>
+      )}
+
+      {auth.user !== null && type !== "host" && (
+        <Link
+          to="/browse"
+          className="hover:cursor-pointer hover:underline text-xl ml-5 font-semibold"
+        >
+          Browse Listings
+        </Link>
+      )}
+      {auth.user !== null && type !== "renter" && (
         <Link
           to="/listings"
           className="hover:cursor-pointer hover:underline text-xl ml-5 font-semibold"
         >
-          Listings
+          My Listings
+        </Link>
+      )}
+
+      {auth.user !== null && ( 
+          <Link
+            to="/bookings"
+            className="hover:cursor-pointer hover:underline text-xl ml-5 font-semibold"
+          >
+            My Bookings
+          </Link>
+        )}
+
+      {auth.user === 1 && type === "admin" && (
+        <Link
+          to="/reports"
+          className="hover:cursor-pointer hover:underline text-xl ml-5 font-semibold"
+        >
+          Admin Reports
         </Link>
       )}
 

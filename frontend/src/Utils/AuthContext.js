@@ -9,8 +9,6 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const storedUser = JSON.parse(sessionStorage.getItem("user"));
   let [user, setUser] = useState(storedUser || null);
-  console.log(user);
-
 
   const signup = async (formData, callback) => {
     axios
@@ -24,7 +22,6 @@ export function AuthProvider({ children }) {
       })
       .catch((err) => {
         console.log(err);
-        callback(500, err);
       });
   };
 
@@ -46,7 +43,7 @@ export function AuthProvider({ children }) {
       })
       .catch((err) => {
         console.log(err);
-        callback(500, err);
+        alert("Invalid username or password");
       });
   };
 
@@ -67,7 +64,6 @@ export function AuthProvider({ children }) {
       })
       .catch((err) => {
         console.log(err);
-        callback(500, err);
       });
   };
 

@@ -20,13 +20,11 @@ public class Signout extends Endpoint {
     public void handlePost(HttpExchange r) throws IOException, JSONException {
 
         List<String> cookie = r.getRequestHeaders().get("Cookie");
-        System.out.println(cookie);
         if (cookie == null) {
             System.out.println("User is not logged in");
             this.sendStatus(r, 400);
             return;
         }
-        System.out.println(cookie);
         String[] cookies = cookie.toString().split(";");
         Integer uid = null;
 
@@ -49,7 +47,6 @@ public class Signout extends Endpoint {
                 updatedCookie.add(c);
             }
         }
-        System.out.println(updatedCookie);
         r.getResponseHeaders().put("Set-Cookie", updatedCookie);
 
         this.sendStatus(r, 200);

@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import javax.sound.midi.SysexMessage;
+
 import java.sql.*;
 
 public class Report extends Endpoint {
@@ -41,13 +44,16 @@ public class Report extends Endpoint {
 
         // check if curent user is admin(uid 1)
         // Get cookie and check if user is logged in
-    
+
         List<String> cookie = r.getRequestHeaders().get("Cookie");
+        System.out.println(cookie);
         if (cookie == null) {
             System.out.println("User is not logged in");
             this.sendStatus(r, 400);
             return;
         }
+        System.out.println(cookie);
+
         String[] cookies = cookie.toString().split(";");
         Integer uid = null;
 
@@ -86,11 +92,9 @@ public class Report extends Endpoint {
         }
 
         String query = r.getRequestURI().getQuery();
-        String[] params = query.split("&");
-        System.out.println(query);
-        System.out.println(params.length);
-        for (String param : params) {
-            System.out.println(param);
+        String[] params = null;
+        if (query != null) {
+            params = query.split("&");
         }
 
         // parse query params
@@ -102,41 +106,43 @@ public class Report extends Endpoint {
         String user_type = null;
         String year = null;
 
-        for (String param : params) {
-            String[] pair = param.split("=");
-            if (pair.length != 2) {
-                System.out.println("Invalid param");
-                this.sendStatus(r, 400);
-                return;
-            }
-            String key = pair[0];
-            String value = pair[1];
-            switch (key) {
-                case "start_date":
-                    start_date = value;
-                    break;
-                case "end_date":
-                    end_date = value;
-                    break;
-                case "city":
-                    city = value;
-                    break;
-                case "postal_code":
-                    postal_code = value;
-                    break;
-                case "country":
-                    country = value;
-                    break;
-                case "user_type":
-                    user_type = value;
-                    break;
-                case "year":
-                    year = value;
-                    break;
-                default:
+        if (params != null) {
+            for (String param : params) {
+                String[] pair = param.split("=");
+                if (pair.length != 2) {
                     System.out.println("Invalid param");
                     this.sendStatus(r, 400);
                     return;
+                }
+                String key = pair[0];
+                String value = pair[1];
+                switch (key) {
+                    case "start_date":
+                        start_date = value;
+                        break;
+                    case "end_date":
+                        end_date = value;
+                        break;
+                    case "city":
+                        city = value;
+                        break;
+                    case "postal_code":
+                        postal_code = value;
+                        break;
+                    case "country":
+                        country = value;
+                        break;
+                    case "user_type":
+                        user_type = value;
+                        break;
+                    case "year":
+                        year = value;
+                        break;
+                    default:
+                        System.out.println("Invalid param");
+                        this.sendStatus(r, 400);
+                        return;
+                }
             }
         }
         try {
@@ -149,7 +155,10 @@ public class Report extends Endpoint {
                     return;
                 }
                 // query for report 1
+                System.out.println("start_date: " + start_date);
                 rep = this.dao.getReport1(start_date, end_date, city);
+                System.out.println("rep: " + rep);
+
             }
             // if reporttype is 2, query for reprot 2
             else if (report_type == 2) {
@@ -253,10 +262,15 @@ public class Report extends Endpoint {
             }
             // if reporttype is 12, query for reprot 12
             else if (report_type == 12 || report_type == 13) {
-                if (user_type == null || year == null) {
+                if (year == null) {
                     System.out.println("Invalid param");
                     this.sendStatus(r, 400);
                     return;
+                }
+                if (report_type == 12){
+                    user_type = "renter";
+                }else{
+                    user_type = "host";
                 }
                 // query for report 12
                 rep = this.dao.getReport12and13(user_type, year);
@@ -275,7 +289,7 @@ public class Report extends Endpoint {
                 this.sendStatus(r, 404);
                 return;
             }
-            
+
             ResultSet rs = rep;
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnsNumber = rsmd.getColumnCount();

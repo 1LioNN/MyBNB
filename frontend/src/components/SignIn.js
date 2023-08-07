@@ -19,7 +19,7 @@ function SignIn() {
     auth.login(formData, (status, data) => {
       if (status === 200) {
         alert("Successfully signed in!");
-        navigate("/profile");
+        navigate("/profile/" + data);
       } else {
         alert("Invalid username or password");
       }

@@ -26,27 +26,28 @@ public abstract class Endpoint implements HttpHandler {
     }
 
     public void handle(HttpExchange r) {
-        r.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // For CORS
+        r.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000"); // For CORS
+        r.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
         try {
             switch (r.getRequestMethod()) {
-            case "OPTIONS":
-                this.handleCors(r);
-                break;
-            case "GET":
-                this.handleGet(r);
-                break;
-            case "PATCH":
-                this.handlePatch(r);
-                break;
-            case "POST":
-                this.handlePost(r);
-                break;
-            case "DELETE":
-                this.handleDelete(r);
-                break;
-            default:
-                this.sendStatus(r, 405);
-                break;
+                case "OPTIONS":
+                    this.handleCors(r);
+                    break;
+                case "GET":
+                    this.handleGet(r);
+                    break;
+                case "PATCH":
+                    this.handlePatch(r);
+                    break;
+                case "POST":
+                    this.handlePost(r);
+                    break;
+                case "DELETE":
+                    this.handleDelete(r);
+                    break;
+                default:
+                    this.sendStatus(r, 405);
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,12 +96,16 @@ public abstract class Endpoint implements HttpHandler {
         return;
     }
 
-    public void handleGet(HttpExchange r) throws IOException, JSONException {};
+    public void handleGet(HttpExchange r) throws IOException, JSONException {
+    };
 
-    public void handlePatch(HttpExchange r) throws IOException, JSONException {};
+    public void handlePatch(HttpExchange r) throws IOException, JSONException {
+    };
 
-    public void handlePost(HttpExchange r) throws IOException, JSONException {};
+    public void handlePost(HttpExchange r) throws IOException, JSONException {
+    };
 
-    public void handleDelete(HttpExchange r) throws IOException, JSONException {};
+    public void handleDelete(HttpExchange r) throws IOException, JSONException {
+    };
 
 }

@@ -1,9 +1,10 @@
 import React from "react";
 import { useState } from "react";
-import axios from "axios";
+import { useAuth } from "../Utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const auth = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -11,7 +12,7 @@ function Register() {
   const [address, setAddress] = useState("");
   const [birthday, setBirthday] = useState("");
   const [occupation, setOccupation] = useState("");
-  const [sin, setSin] = useState(0);
+  const [sin, setSin] = useState(null);
   const [type, setType] = useState("renter");
   const [credit_number, setCreditNumber] = useState("");
   const [credit_password, setCreditPassword] = useState("");
@@ -37,29 +38,24 @@ function Register() {
       formData["credit_number"] = credit_number;
       formData["credit_password"] = credit_password;
     }
-    axios
-      .post("http://localhost:8000/user/signup", formData)
-      .then((res) => {
-        console.log(res);
-        if (res.status === 200) {
-          alert("Successfully registered!");
-          navigate("/signin");
-        } else {
-          alert("Error");
-        }
-      })
-      .catch((err) => {
-        alert("Invalid Fields (Username already exists or SIN number has been registered)");
-      });
+
+    auth.signup(formData, (status, data) => {
+      if (status === 200) {
+        alert("Successfully registered!");
+        navigate("/signin");
+      } else {
+        alert("Invalid information");
+      }
+    });
   };
 
   const navigateToHome = () => {
     navigate("/");
-  }
+  };
 
   const navigateToSignIn = () => {
     navigate("/signin");
-  }
+  };
 
   return (
     <div className="flex flex-row justify-center">
@@ -67,7 +63,13 @@ function Register() {
         <div className="flex flex-row text-3xl font-bold mb-4 w-[22rem] justify-center">
           <div>Register for an Account</div>
         </div>
-        <div className="pb-4 font-bold cursor-pointer hover:underline text-cyan-600" onClick={navigateToHome}> Back to Home</div>
+        <div
+          className="pb-4 font-bold cursor-pointer hover:underline text-cyan-600"
+          onClick={navigateToHome}
+        >
+          {" "}
+          Back to Home
+        </div>
         <div>
           <form
             className="flex flex-col font-semibold text-md gap-2"
@@ -215,7 +217,17 @@ function Register() {
               Register
             </button>
           </form>
-          <div className="font-semibold"> Already have an account? <span className="text-cyan-600 font-bold hover:cursor-pointer" onClick={navigateToSignIn}> Sign In! </span></div>
+          <div className="font-semibold">
+            {" "}
+            Already have an account?{" "}
+            <span
+              className="text-cyan-600 font-bold hover:cursor-pointer"
+              onClick={navigateToSignIn}
+            >
+              {" "}
+              Sign In!{" "}
+            </span>
+          </div>
         </div>
       </div>
     </div>

@@ -38,7 +38,21 @@ public class Booking extends Endpoint {
                 this.sendStatus(r, 400);
                 return;
             }
-            Integer uid = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
+            String[] cookies = cookie.toString().split(";");
+            Integer uid = null;
+    
+            for (String c : cookies) {
+                String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+                if (cookieName.startsWith("session_id=")) {
+                    uid = Integer.valueOf(cookieName.replace("session_id=", ""));
+                }
+            }
+            System.out.println(uid);
+            if (uid == null) {
+                System.out.println("User is not logged in");
+                this.sendStatus(r, 400);
+                return;
+            }
             // Check if user is renter
             try {
                 if (this.dao.getUserById(uid).getString("user_type").equals(("host"))) {
@@ -163,6 +177,21 @@ public class Booking extends Endpoint {
         } else {
             List<String> cookie = r.getRequestHeaders().get("Cookie");
             if (cookie == null) {
+                System.out.println("User is not logged in");
+                this.sendStatus(r, 400);
+                return;
+            }
+            String[] cookies = cookie.toString().split(";");
+            Integer uid = null;
+    
+            for (String c : cookies) {
+                String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+                if (cookieName.startsWith("session_id=")) {
+                    uid = Integer.valueOf(cookieName.replace("session_id=", ""));
+                }
+            }
+            System.out.println(uid);
+            if (uid == null) {
                 System.out.println("User is not logged in");
                 this.sendStatus(r, 400);
                 return;

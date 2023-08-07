@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.sql.*;
+import java.util.List;
 
 public class User extends Endpoint {
 
@@ -49,20 +50,22 @@ public class User extends Endpoint {
 
 		// get data
 		String name;
-		String email;
+		String username;
 		String address;
 		String birthday;
 		String occupation;
+		String credit_number;
 		Integer SIN;
 		String userType;
 		try {
 			name = rs.getString("name");
-			email = rs.getString("email");
+			username = rs.getString("username");
 			address = rs.getString("address");
 			birthday = rs.getString("dateOfBirth");
 			occupation = rs.getString("occupation");
 			SIN = rs.getInt("SIN");
 			userType = rs.getString("user_type");
+			credit_number = rs.getString("credit_number");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			this.sendStatus(r, 500);
@@ -74,13 +77,16 @@ public class User extends Endpoint {
 		JSONObject data = new JSONObject();
 		data.put("uid", uid);
 		data.put("name", name);
-		data.put("email", email);
+		data.put("username", username);
 		data.put("address", address);
 		data.put("birthday", birthday);
 		data.put("occupation", occupation);
 		data.put("SIN", SIN);
 		data.put("userType", userType);
+		data.put("credit_number", credit_number);
 		resp.put("data", data);
+
+
 		this.sendResponse(r, resp, 200);
 	}
 

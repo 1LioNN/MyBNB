@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 public class SignIn extends Endpoint {
     /**
      * POST /user/signin
@@ -51,9 +50,10 @@ public class SignIn extends Endpoint {
             }
 
             Headers respHeaders = r.getResponseHeaders();
-            respHeaders.add("Set-Cookie", "session_id=" + uid +"; Path =/");
 
-            this.sendResponse(r, new JSONObject(), 200);
+            respHeaders.add("Set-Cookie", "session_id=" + uid + "; Path=/");
+
+            this.sendResponse(r, new JSONObject().put("user", uid), 200);
 
         }
     }

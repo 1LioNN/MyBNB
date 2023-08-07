@@ -1,10 +1,13 @@
 import React from "react";
 import NavBar from "../components/NavBar";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 function WelcomePage() {
     const navigate = useNavigate();
 
+    
     const SignInClickHandler = () => {
         navigate("/signin");
     };

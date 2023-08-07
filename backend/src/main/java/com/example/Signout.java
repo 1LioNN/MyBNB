@@ -18,6 +18,7 @@ public class Signout extends Endpoint {
 
     @Override
     public void handlePost(HttpExchange r) throws IOException, JSONException {
+
         List<String> cookie = r.getRequestHeaders().get("Cookie");
         System.out.println(cookie);
         if (cookie == null) {
@@ -25,14 +26,32 @@ public class Signout extends Endpoint {
             this.sendStatus(r, 400);
             return;
         }
+        System.out.println(cookie);
+        String[] cookies = cookie.toString().split(";");
+        Integer uid = null;
 
+        for (String c : cookies) {
+            String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+            if (cookieName.startsWith("session_id=")) {
+                uid = Integer.valueOf(cookieName.replace("session_id=", ""));
+            }
+        }
+        System.out.println(uid);
+        if (uid == null) {
+            System.out.println("User is not logged in");
+            this.sendStatus(r, 400);
+            return;
+        }
         List<String> updatedCookie = new ArrayList<>();
-        for (String c : cookie) {
-            if (!c.startsWith("session_id=")) {
+        for (String c : cookies) {
+            String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+            if (!cookieName.startsWith("session_id=")) {
                 updatedCookie.add(c);
             }
         }
+        System.out.println(updatedCookie);
         r.getResponseHeaders().put("Set-Cookie", updatedCookie);
+
         this.sendStatus(r, 200);
     }
 

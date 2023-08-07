@@ -41,13 +41,28 @@ public class Report extends Endpoint {
 
         // check if curent user is admin(uid 1)
         // Get cookie and check if user is logged in
+    
         List<String> cookie = r.getRequestHeaders().get("Cookie");
         if (cookie == null) {
             System.out.println("User is not logged in");
             this.sendStatus(r, 400);
             return;
         }
-        Integer uid = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
+        String[] cookies = cookie.toString().split(";");
+        Integer uid = null;
+
+        for (String c : cookies) {
+            String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+            if (cookieName.startsWith("session_id=")) {
+                uid = Integer.valueOf(cookieName.replace("session_id=", ""));
+            }
+        }
+        System.out.println(uid);
+        if (uid == null) {
+            System.out.println("User is not logged in");
+            this.sendStatus(r, 400);
+            return;
+        }
         if (uid != 1) {
             System.out.println("User is not admin");
             this.sendStatus(r, 400);

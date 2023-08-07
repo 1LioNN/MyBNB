@@ -1,10 +1,11 @@
 import React from "react";
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-function SignIn() {
+import { useAuth } from "../Utils/AuthContext";
 
+function SignIn() {
   const navigate = useNavigate();
+  const auth = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -14,29 +15,24 @@ function SignIn() {
       username,
       password,
     };
-
-    axios
-      .post("http://localhost:8000/user/signin", formData)
-      .then((res) => {
-        console.log(res);
-        if (res.status === 200) {
-          navigate("/profile");
-        } else {
-          alert("Error");
-        }
-      })
-      .catch((err) => {
-        alert("Invalid Credentials");
-      });
+    
+    auth.login(formData, (status, data) => {
+      if (status === 200) {
+        alert("Successfully signed in!");
+        navigate("/profile");
+      } else {
+        alert("Invalid username or password");
+      }
+    });
   };
 
   const navigateToHome = () => {
     navigate("/");
-  }
+  };
 
   const navigateToRegister = () => {
     navigate("/register");
-  }
+  };
 
   return (
     <div className="flex flex-row justify-center">
@@ -44,7 +40,13 @@ function SignIn() {
         <div className="flex flex-row text-3xl font-bold mb-4 w-[22rem] justify-center">
           <div>Sign In to MyBNB</div>
         </div>
-        <div className="pb-4 font-bold cursor-pointer hover:underline text-cyan-600" onClick={navigateToHome}> Back to Home</div>
+        <div
+          className="pb-4 font-bold cursor-pointer hover:underline text-cyan-600"
+          onClick={navigateToHome}
+        >
+          {" "}
+          Back to Home
+        </div>
         <div>
           <form
             className="flex flex-col font-semibold text-md gap-2"
@@ -81,7 +83,17 @@ function SignIn() {
               Sign In
             </button>
           </form>
-          <div className="font-semibold"> Don't have an account? <span className="text-cyan-600 font-bold hover:cursor-pointer" onClick={navigateToRegister}> Register Now! </span></div>
+          <div className="font-semibold">
+            {" "}
+            Don't have an account?{" "}
+            <span
+              className="text-cyan-600 font-bold hover:cursor-pointer"
+              onClick={navigateToRegister}
+            >
+              {" "}
+              Register Now!{" "}
+            </span>
+          </div>
         </div>
       </div>
     </div>

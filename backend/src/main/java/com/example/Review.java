@@ -27,19 +27,33 @@ public class Review extends Endpoint {
             System.out.println("Invalid fields");
             this.sendStatus(r, 400);
         } else {
-             List<String> cookie = r.getRequestHeaders().get("Cookie");
+
+            List<String> cookie = r.getRequestHeaders().get("Cookie");
             if (cookie == null) {
                 System.out.println("User is not logged in");
                 this.sendStatus(r, 400);
                 return;
             }
-
-            Integer iduser = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
+            String[] cookies = cookie.toString().split(";");
+            Integer uid = null;
+    
+            for (String c : cookies) {
+                String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+                if (cookieName.startsWith("session_id=")) {
+                    uid = Integer.valueOf(cookieName.replace("session_id=", ""));
+                }
+            }
+            System.out.println(uid);
+            if (uid == null) {
+                System.out.println("User is not logged in");
+                this.sendStatus(r, 400);
+                return;
+            }
             Integer idlisting = body.getInt("idlisting");
             BigDecimal rating = body.getBigDecimal("rating");
             String comment = body.getString("content");
 
-            if ((this.dao.getUserById(iduser) == null) || (this.dao.getListingById(idlisting) == null)) {
+            if ((this.dao.getUserById(uid) == null) || (this.dao.getListingById(idlisting) == null)) {
                 System.out.println("User or listing does not exist");
                 this.sendStatus(r, 400);
                 return;
@@ -64,14 +78,14 @@ public class Review extends Endpoint {
             }
 
             //limit one review per user per listing
-            if (this.dao.getReviewByKey(iduser, idlisting) != null) {
+            if (this.dao.getReviewByKey(uid, idlisting) != null) {
                 System.out.println("User has already reviewed this listing");
                 this.sendStatus(r, 400);
                 return;
             }
 
             try {
-                this.dao.createReview(iduser, idlisting, rating, comment);
+                this.dao.createReview(uid, idlisting, rating, comment);
                 System.out.println("Review added");
                 this.sendStatus(r, 200);
             } catch (Exception e) {

@@ -18,12 +18,28 @@ public class UserSession extends Endpoint{
     @Override
     public void handleGet(HttpExchange r) throws IOException, JSONException {
         List<String> cookie = r.getRequestHeaders().get("Cookie");
-            if (cookie == null) {
-                System.out.println("User is not logged in");
-                this.sendStatus(r, 401);
-                return;
+        
+        if (cookie == null) {
+            System.out.println("User is not logged in");
+            this.sendStatus(r, 400);
+            return;
+        }
+
+        String[] cookies = cookie.toString().split(";");
+        Integer uid = null;
+
+        for (String c : cookies) {
+            String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+            if (cookieName.startsWith("session_id=")) {
+                uid = Integer.valueOf(cookieName.replace("session_id=", ""));
             }
-            Integer uid = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
+        }
+        System.out.println(uid);
+        if (uid == null) {
+            System.out.println("User is not logged in");
+            this.sendStatus(r, 400);
+            return;
+        }
 
             JSONObject res = new JSONObject();
             res.put("session_id", uid);

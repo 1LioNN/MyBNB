@@ -26,18 +26,32 @@ public class Comment extends Endpoint {
             System.out.println("Invalid fields");
             this.sendStatus(r, 400);
         } else {
-             List<String> cookie = r.getRequestHeaders().get("Cookie");
+            List<String> cookie = r.getRequestHeaders().get("Cookie");
             if (cookie == null) {
                 System.out.println("User is not logged in");
                 this.sendStatus(r, 400);
                 return;
             }
-            Integer iduser = Integer.valueOf(cookie.get(0).replace("session_id=", ""));
+            String[] cookies = cookie.toString().split(";");
+            Integer uid = null;
+    
+            for (String c : cookies) {
+                String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
+                if (cookieName.startsWith("session_id=")) {
+                    uid = Integer.valueOf(cookieName.replace("session_id=", ""));
+                }
+            }
+            System.out.println(uid);
+            if (uid == null) {
+                System.out.println("User is not logged in");
+                this.sendStatus(r, 400);
+                return;
+            }
             Integer iduser2 = body.getInt("commentee");
             BigDecimal rating = body.getBigDecimal("rating");
             String comment = body.getString("content");
 
-            if ((this.dao.getUserById(iduser) == null) || (this.dao.getUserById(iduser2) == null)) {
+            if ((this.dao.getUserById(uid) == null) || (this.dao.getUserById(iduser2) == null)) {
                 System.out.println("Users do not exist");
                 this.sendStatus(r, 400);
                 return;
@@ -62,14 +76,14 @@ public class Comment extends Endpoint {
             }
 
             // limit one review per user per listing
-            if (this.dao.getCommentByKey(iduser, iduser2) != null) {
+            if (this.dao.getCommentByKey(uid, iduser2) != null) {
                 System.out.println("User has already reviewed this listing");
                 this.sendStatus(r, 400);
                 return;
             }
 
             try {
-                this.dao.createComment(iduser, iduser2, rating, comment);
+                this.dao.createComment(uid, iduser2, rating, comment);
                 System.out.println("Comment added");
                 this.sendStatus(r, 200);
             } catch (Exception e) {

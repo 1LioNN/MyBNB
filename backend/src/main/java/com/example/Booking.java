@@ -40,7 +40,7 @@ public class Booking extends Endpoint {
             }
             String[] cookies = cookie.toString().split(";");
             Integer uid = null;
-    
+
             for (String c : cookies) {
                 String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
                 if (cookieName.startsWith("session_id=")) {
@@ -92,23 +92,27 @@ public class Booking extends Endpoint {
                 }
 
                 // Check if start date and end date is available
-                String unavailable_datesstr = booked_listing.getString("unavailable_dates")
-                        .replace("[", "")
-                        .replace("]", "")
-                        .replace("\"", "")
-                        .replace(" ", "");
-                // Check if start date is in unavailable dates
-                if (unavailable_datesstr.contains(start_date) || unavailable_datesstr.contains(end_date)) {
-                    System.out.println("Start date or end date is unavailable");
-                    this.sendStatus(r, 400);
-                    return;
-                }
+                String[] unavailable_dates = new String[] { "" };
+                if (booked_listing.getString("unavailable_dates") != null) {
 
-                String[] unavailable_dates = booked_listing.getString("unavailable_dates")
-                        .replace("[", "")
-                        .replace("]", "")
-                        .replace(" ", "")
-                        .split(",");
+                    String unavailable_datesstr = booked_listing.getString("unavailable_dates")
+                            .replace("[", "")
+                            .replace("]", "")
+                            .replace("\"", "")
+                            .replace(" ", "");
+                    // Check if start date is in unavailable dates
+                    if (unavailable_datesstr.contains(start_date) || unavailable_datesstr.contains(end_date)) {
+                        System.out.println("Start date or end date is unavailable");
+                        this.sendStatus(r, 400);
+                        return;
+                    }
+
+                    unavailable_dates = booked_listing.getString("unavailable_dates")
+                            .replace("[", "")
+                            .replace("]", "")
+                            .replace(" ", "")
+                            .split(",");
+                }
 
                 List<String> unavailable_dates_list = new ArrayList<String>();
                 for (String date : unavailable_dates) {
@@ -183,7 +187,7 @@ public class Booking extends Endpoint {
             }
             String[] cookies = cookie.toString().split(";");
             Integer uid = null;
-    
+
             for (String c : cookies) {
                 String cookieName = c.replace("]", "").replace("[", "").replace(" ", "");
                 if (cookieName.startsWith("session_id=")) {

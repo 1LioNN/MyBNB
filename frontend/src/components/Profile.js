@@ -69,7 +69,7 @@ function Profile(props) {
       <div className="text-xl">
         <span className="font-semibold">Account Type: </span> {profile.userType}
       </div>
-      {profile.userType !== "admin" && (auth.user !== profile.uid) && (
+      {profile.userType !== "admin" && (auth.user === profile.uid) && (
         <button
           className="text-white border-2 border-red-500 rounded-lg bg-red-500  hover:bg-red-900 pb-4 p-3 w-48 mt-40"
           onClick={deleteAccount}

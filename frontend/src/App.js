@@ -10,6 +10,7 @@ import CreateListingPage from "./pages/CreateListingPage";
 import BookListingPage from "./pages/BookListingPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import ReportsPage from "./pages/ReportsPage";
+import ViewListingPage from "./pages/ViewListingPage";
 
 function App() {
   return (
@@ -21,9 +22,10 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/profile/:uid" element={<Profile />} />
           <Route path="/listings" element={<MyListingsPage />} />
-          <Route path="/browse" element={<BrowseListingsPage />} />
+          <Route path="/listings/:lid" element={<ViewListingPage />} />
           <Route path="/create" element={<CreateListingPage />} />
-          <Route path="/bookings/:lid" element={<BookListingPage />} />
+          <Route path="/browse" element={<BrowseListingsPage />} />
+          <Route path="/browse/:lid" element={<BookListingPage />} />
           <Route path="/bookings" element={<MyBookingsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
         </Routes>

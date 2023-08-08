@@ -69,7 +69,8 @@ function CreateListingForm() {
       });
     // You can handle the form submission logic here
   };
-
+  const a = 0;
+  console.log(a.toFixed(2));
   useEffect(() => {
     axios
       .get("http://localhost:8000/price?country=" + country, {
@@ -85,7 +86,7 @@ function CreateListingForm() {
         const top5Names = res.data.top_amenities.map((amenity) => amenity.name);
         setAmenitiesListNames(top5Names);
       });
-  }, []);
+  }, [country]);
   const estimatedIncomeValue = estimatedIncome(
     averagePrice,
     amenitiesList,
@@ -172,7 +173,7 @@ function CreateListingForm() {
                   Average Listing Prices in Your Country: {" $" + averagePrice}
                 </div>
                 <div className="font-bold">
-                  Top 5 Amenities in Your Country{" "}
+                  Top 5 Amenities included by other Hosts{" "}
                   {"(+3% income per desireable amenity, up to 15%) "}:
                 </div>
                 {amenitiesListNames.map((amenity) => (

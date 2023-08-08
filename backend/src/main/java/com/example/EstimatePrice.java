@@ -64,6 +64,10 @@ public class EstimatePrice extends Endpoint {
         try {
             ResultSet rs1 = this.dao.getAveragePrice(country);
             BigDecimal averagePrice = rs1.getBigDecimal("average_price");
+            if (averagePrice == null) {
+                //Set average price to 0 if no listings in country
+                averagePrice = new BigDecimal(0);
+            }
             ResultSet rs = this.dao.getTopAmenities();
 
             ResultSetMetaData rsmd = rs.getMetaData();

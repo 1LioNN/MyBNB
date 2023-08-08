@@ -58,6 +58,12 @@ public class Review extends Endpoint {
                 this.sendStatus(r, 400);
                 return;
             }
+
+            if ((this.dao.hasBooked(uid, idlisting)) == null){
+                System.out.println("User has not booked this listing");
+                this.sendStatus(r, 400);
+                return;
+            }
             // limit contnet to 255 characters
             if (comment.length() > 255) {
                 System.out.println("Comment is too long");

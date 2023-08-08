@@ -10,6 +10,7 @@ Database - MySQL (embedded in Java)
    ```
    cd backend
    mvn install
+   ```
 
 4. Install dependencies for the frontend by running the follwing in a new terminal in the mybnb/ directory:
    ```

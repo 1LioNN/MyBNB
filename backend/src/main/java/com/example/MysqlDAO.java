@@ -1123,4 +1123,23 @@ public class MysqlDAO {
         }
     }
 
+    public ResultSet hasBooked (Integer iduser, Integer idlisting){
+        String query = "SELECT * FROM mybnb.books WHERE iduser = ? AND idbookings IN (SELECT idbookings FROM mybnb.bookings WHERE idlistings = ?);";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setInt(1, iduser);
+            stmt.setInt(2, idlisting);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+
+
+    }
+
 }

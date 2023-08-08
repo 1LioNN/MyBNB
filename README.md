@@ -1,5 +1,5 @@
 # MyBNB
-C43 Project - MyBnb\
+C43 Project - MyBnB\
 Frontend - Javascript and React\
 Backend - Java embedded MySQL\
-Database - MySQL\
+Database - MySQL

@@ -1,8 +1,22 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../Utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
+function estimatedIncome(price, amenitiesList, amenities) {
+  const amenitiesMatched = amenities.filter((amenity) =>
+    amenitiesList.includes(amenity)
+  ).length;
+
+  // Calculate the percent income based on the number of amenities matched, capped at 15%
+  const incomePercent = Math.min(amenitiesMatched * 3, 15);
+
+  // Calculate the estimated income
+  const estimatedIncome = price * (1 + incomePercent / 100);
+
+  return estimatedIncome.toFixed(2);
+}
 
 function CreateListingForm() {
   const auth = useAuth();
@@ -18,8 +32,9 @@ function CreateListingForm() {
   const [start_date, setStartDate] = useState("");
   const [end_date, setEndDate] = useState("");
   const [amenities, setAmenities] = useState([]);
-
-  console.log(amenities);
+  const [amenitiesList, setAmenitiesList] = useState([]);
+  const [amenitiesListNames, setAmenitiesListNames] = useState([]);
+  const [averagePrice, setAveragePrice] = useState(0);
 
   const changeAmenities = (e) => {
     const value = parseInt(e.target.value, 10);
@@ -36,7 +51,7 @@ function CreateListingForm() {
       longi: parseFloat(longi),
       lat: parseFloat(lat),
       postal_code,
-        city,
+      city,
       country,
       price_per_day: parseFloat(price),
       start_date,
@@ -54,6 +69,28 @@ function CreateListingForm() {
       });
     // You can handle the form submission logic here
   };
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/price?country=" + country, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        console.log(res.data);
+        setAveragePrice(res.data.average_price.toFixed(2));
+        const top5 = res.data.top_amenities.map(
+          (amenity) => amenity.idamenities
+        );
+        setAmenitiesList(top5);
+        const top5Names = res.data.top_amenities.map((amenity) => amenity.name);
+        setAmenitiesListNames(top5Names);
+      });
+  }, []);
+  const estimatedIncomeValue = estimatedIncome(
+    averagePrice,
+    amenitiesList,
+    amenities
+  );
 
   return (
     <div className="flex flex-row justify-center mt-5">
@@ -130,6 +167,21 @@ function CreateListingForm() {
                 <option value="MX">MX</option>
                 <option value="BR">BR</option>
               </select>
+              <div className="flex flex-col gap-2">
+                <div className="font-bold">
+                  Average Listing Prices in Your Country: {" $" + averagePrice}
+                </div>
+                <div className="font-bold">
+                  Top 5 Amenities in Your Country{" "}
+                  {"(+3% income per desireable amenity, up to 15%) "}:
+                </div>
+                {amenitiesListNames.map((amenity) => (
+                  <div>{amenity}</div>
+                ))}
+                <div className="font-bold">
+                  Suggested Price:{" $" + estimatedIncomeValue}
+                </div>
+              </div>
             </div>
             <div className="flex flex-col gap-5">
               <input

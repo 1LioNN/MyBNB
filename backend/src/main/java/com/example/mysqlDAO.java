@@ -156,6 +156,15 @@ public class MysqlDAO {
             query.setInt(1, id);
             query.executeUpdate();
 
+            PreparedStatement query2 = this.conn.prepareStatement("DELETE FROM hosts WHERE iduser = ?;");
+            query2.setInt(1, id);
+            query2.executeUpdate();
+
+            PreparedStatement query3 = this.conn.prepareStatement("DELETE FROM books WHERE iduser = ?;");
+            query3.setInt(1, id);
+            query3.executeUpdate();
+
+
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -290,6 +299,11 @@ public class MysqlDAO {
             PreparedStatement query = this.conn.prepareStatement("DELETE FROM listings WHERE idlistings = ?;");
             query.setInt(1, id);
             query.executeUpdate();
+
+            // Delete host listing pair
+            PreparedStatement query2 = this.conn.prepareStatement("DELETE FROM hosts WHERE idlistings = ?;");
+            query2.setInt(1, id);
+            query2.executeUpdate();
 
         } catch (Exception e) {
             System.out.println(e);
@@ -455,7 +469,7 @@ public class MysqlDAO {
         }
     }
 
-    public ResultSet getHostBookings (Integer id){
+    public ResultSet getHostBookings(Integer id) {
         try {
             // Get user information
             PreparedStatement query = this.conn.prepareStatement(
@@ -688,7 +702,7 @@ public class MysqlDAO {
         }
 
         PreparedStatement stmt = this.conn.prepareStatement(query.toString());
-    
+
         int parameterIndex = 1;
         if (latitude != null && longitude != null && distance != null) {
             stmt.setBigDecimal(parameterIndex++, latitude);
@@ -1073,6 +1087,39 @@ public class MysqlDAO {
 
         } catch (Exception e) {
             System.out.println(e);
+        }
+    }
+
+    // Host toolkit queries
+    public ResultSet getAveragePrice(String country) {
+
+        String query = "SELECT AVG(price_per_day) AS average_price FROM mybnb.listings WHERE country = ?;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            stmt.setString(1, country);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
+        }
+    } 
+
+    public ResultSet getTopAmenities (){
+        String query = "SELECT * FROM mybnb.amenities ORDER BY amount DESC LIMIT 5;";
+        try {
+            PreparedStatement stmt = this.conn.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+                return rs;
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
     }
 

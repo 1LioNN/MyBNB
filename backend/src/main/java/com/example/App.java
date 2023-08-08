@@ -33,6 +33,8 @@ public class App {
         server.createContext("/comment", new Comment());
         //Report context
         server.createContext("/report", new Report());
+        //Host toolkit 
+        server.createContext("/price", new EstimatePrice());
         
 
         server.start();

@@ -18,10 +18,10 @@ Database - MySQL (embedded in Java)
    npm install
    ```
 3. Create a new file in the backend foldler called .env and set the contents of the file to the following (make sure there are no spaces between the =):
-```
-DB_NAME=//name of your local mysql database
-DB_PASS=//password of your local mysql database
-```
+   ```
+   DB_NAME=mybnb
+   DB_PASS=//password of your local mysql database
+   ```
 
 
 4. In the terminal where you installed the backend dependencies, run the following to start the server:

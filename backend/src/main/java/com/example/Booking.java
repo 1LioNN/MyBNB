@@ -84,6 +84,13 @@ public class Booking extends Endpoint {
                 LocalDate list_end = LocalDate.parse(booked_listing.getString("end_date"));
                 List<LocalDate> dates = (start).datesUntil(end).collect(Collectors.toList());
 
+                //Check if start date is before end date
+                if (start.isAfter(end)) {
+                    System.out.println("Start date is after end date");
+                    this.sendStatus(r, 400);
+                    return;
+                }
+
                 // Check if start date is in the range of the listing
                 if (start.isBefore(list_start) || start.isAfter(list_end)) {
                     System.out.println("Start date is not in the range of the listing");

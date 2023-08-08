@@ -1,12 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import BookingCards from "./MyListingCards";
 import { useEffect, useState } from "react";
 import { useAuth } from "../Utils/AuthContext";
 import axios from "axios";
 
 function Listings() {
-  const navigate = useNavigate();
   const auth = useAuth();
   const [bookings, setBookings] = useState([]);
   const [type, setType] = useState("");
@@ -99,7 +97,7 @@ function Listings() {
             >
               <div className="flex flex-row gap-2 items-center">
                 <span className="text-xl font-bold">
-                  Booked Listing: {booking.idlisting}
+                  Booked Listing: {booking.idlistings}
                 </span>
                 <span className="text-lg font-semibold ml-auto">
                   Status: {getStatus(booking.status)}

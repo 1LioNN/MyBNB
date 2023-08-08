@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.4.0",
     "compromise": "^14.9.0",
+    "moment": "^2.29.4",
     "node-nlp": "^4.27.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",

@@ -669,22 +669,22 @@ public class MysqlDAO {
         }
 
         if (minPrice != null) {
-            query.append(" AND price >= ?");
+            query.append(" AND price_per_day >= ?");
         }
 
         if (maxPrice != null) {
-            query.append(" AND price <= ?");
+            query.append(" AND price_per_day <= ?");
         }
 
         if (amenities != null) {
             for (int i = 0; i < amenities.length(); i++) {
                 query.append(
-                        "AND ? IN (SELECT idamenities FROM mybnb.amenities WHERE mybnb.amenities.idamenities IN (SELECT idamenities FROM mybnb.has WHERE mybnb.has.idlistings = mybnb.listings.idlistings) )");
+                        " AND ? IN (SELECT idamenities FROM mybnb.amenities WHERE mybnb.amenities.idamenities IN (SELECT idamenities FROM mybnb.has WHERE mybnb.has.idlistings = mybnb.listings.idlistings) )");
             }
         }
 
         if (orderByPrice != null && (orderByPrice.equalsIgnoreCase("asc") || orderByPrice.equalsIgnoreCase("desc"))) {
-            query.append(" ORDER BY price ").append(orderByPrice.toUpperCase());
+            query.append(" ORDER BY price_per_day ").append(orderByPrice.toUpperCase());
         }
 
         PreparedStatement stmt = this.conn.prepareStatement(query.toString());
